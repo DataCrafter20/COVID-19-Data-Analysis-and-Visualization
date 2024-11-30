@@ -79,3 +79,6 @@ Contributions are welcome! Please create a pull request or open an issue to disc
 ## License
 This project is licensed under the [MIT License](LICENSE).
 
+## Conclusion
+This project demonstrates data cleaning, visualization, and interactive dashboard creation using Python.
+
