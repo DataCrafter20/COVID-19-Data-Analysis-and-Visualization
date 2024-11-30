@@ -8,11 +8,8 @@ This project showcases skills in data cleaning, analysis, and visualization by e
 The repository is organized as follows:
 
 - `data/`:
-  - Contains raw and cleaned datasets.
+  - Contains raw(compressed, extracion required) and cleaned datasets.
   - Includes intermediary processed files.
-- `notebooks/`:
-  - Jupyter notebooks for data exploration and preliminary visualizations.
-  - Useful for understanding the data cleaning and transformation steps.
 - `scripts/`:
   - Python scripts for reproducible data cleaning and visualization tasks.
   - Includes code for generating the interactive dashboard.
