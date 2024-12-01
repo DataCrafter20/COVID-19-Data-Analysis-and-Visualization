@@ -62,9 +62,6 @@ The project includes:
 - Heatmaps showing vaccination coverage across regions.
 - Customizable charts for comparing metrics over time.
 
-## Example Screenshots
-_Add screenshots or GIFs showcasing your dashboard and key visualizations._
-
 ## Future Improvements
 - Add more granular filters, such as age group or gender.
 - Incorporate machine learning models for trend prediction.
