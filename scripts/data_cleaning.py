@@ -1,32 +1,40 @@
-import pandas as pd  # Import the pandas library for data manipulation
+import pandas as pd  # this is a library that helps work with data tables like spreadsheets
 
-# Load the COVID-19 data from the source
-covid_data = pd.read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv')  # Read the CSV file from the URL
+#asks the program to read the covid data from a website instead of writing the data manually
+covid_data_url = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
+covid_table = pd.read_csv(covid_data_url)
 
-# Convert 'date' column to datetime format for easier manipulation
-covid_data['date'] = pd.to_datetime(covid_data['date'])  # Change the 'date' column to datetime objects
+#changes the date column so that it can be used for date calculations later
+covid_table['date'] = pd.to_datetime(covid_table['date'])
 
-# Drop duplicate rows
-covid_data = covid_data.drop_duplicates()  # Remove any duplicate entries in the DataFrame
+#removes any extra repeated rows that might mess up the results
+covid_table = covid_table.drop_duplicates()
 
-# Drop rows where 'location' or 'date' is missing
-covid_data = covid_data.dropna(subset=['location', 'date'])  # Eliminate rows with missing 'location' or 'date' values
+#removes rows where the country or date is missing because they are important
+covid_table = covid_table.dropna(subset=['location', 'date'])
 
-# Fill missing values in 'new_cases' and 'new_deaths' columns using forward fill
-covid_data['new_cases'] = covid_data['new_cases'].fillna(method='ffill')  # Forward fill missing 'new_cases' values
-covid_data['new_deaths'] = covid_data['new_deaths'].fillna(method='ffill')  # Forward fill missing 'new_deaths' values
+#some of the daily case and death numbers are missing, so we fill them in using the value from the day before
+covid_table['new_cases'] = covid_table['new_cases'].fillna(method='ffill')
+covid_table['new_deaths'] = covid_table['new_deaths'].fillna(method='ffill')
 
-# Remove outliers by applying a threshold based on quantiles
-lower_bound = covid_data['new_cases'].quantile(0.01)  # Calculate the 1st percentile for 'new_cases'
-upper_bound = covid_data['new_cases'].quantile(0.99)  # Calculate the 99th percentile for 'new_cases'
-covid_data = covid_data[(covid_data['new_cases'] >= lower_bound) & (covid_data['new_cases'] <= upper_bound)]  # Filter out outliers
+#removes very low or very high numbers that are probably wrong using the 1% and 99% cutoff
+minimum_allowed_cases = covid_table['new_cases'].quantile(0.01)
+maximum_allowed_cases = covid_table['new_cases'].quantile(0.99)
 
-# Create a new column for the rolling 7-day average of new cases
-covid_data['7_day_avg_cases'] = covid_data.groupby('location')['new_cases'].transform(lambda x: x.rolling(7).mean())  # Calculate the 7-day rolling average of 'new_cases'
+#keeps only the numbers that are between the min and max allowed limits
+covid_table = covid_table[
+    (covid_table['new_cases'] >= minimum_allowed_cases) &
+    (covid_table['new_cases'] <= maximum_allowed_cases)
+]
 
-# Save the cleaned data to a CSV file
-covid_data.to_csv('data/cleaned_covid_data.csv', index=False)  # Write the cleaned DataFrame to a CSV file without the index
+#adds a new column that shows the 7-day average to make trends easier to see
+covid_table['average_7_day_cases'] = covid_table.groupby('location')['new_cases'].transform(
+    lambda numbers: numbers.rolling(7).mean()
+)
 
-# Print data summary to verify the changes
-print("Data Cleaning Completed:")  # Print a completion message
-print(covid_data.info())  # Display a summary of the cleaned DataFrame
+#saves the cleaned and improved data into a new CSV file that can be used later
+covid_table.to_csv('data/cleaned_covid_data.csv', index=False)
+
+#prints a message to show the cleaning is finished and also shows a quick summary of the table
+print("Done cleaning the covid data:")
+print(covid_table.info())
