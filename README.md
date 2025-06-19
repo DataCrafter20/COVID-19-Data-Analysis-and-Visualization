@@ -95,12 +95,6 @@ streamlit run scripts/dashboard.py
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Open an issue or submit a pull request with your improvements.
-
----
-
 ## 👤 Author
 
 **NDIVHUWO MUNYAI**
