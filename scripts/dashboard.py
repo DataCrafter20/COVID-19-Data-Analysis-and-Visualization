@@ -3,13 +3,13 @@ import pandas as pd
 import plotly.express as px
 
 #loads the covid data from the csv file so we can use it later
-covid_data_from_file = pd.read_csv('data/cleaned_covid_data.csv')
+covid_data_from_file = pd.read_csv('covid-data-raw.csv')
 
 #changes the 'date' column into a datetime type to work better with time-based charts
 covid_data_from_file['date'] = pd.to_datetime(covid_data_from_file['date'])
 
 #shows the title of the app at the top of the page
-st.title("COVID-19 Dashboard (Beginner Friendly)")
+st.title("COVID-19 Monitoring and Analysis Dashboard")
 
 #asks the user to pick a country from the dropdown on the sidebar
 user_selected_country = st.sidebar.selectbox("Pick a Country to See Data:", covid_data_from_file['location'].unique())
