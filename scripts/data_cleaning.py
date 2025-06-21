@@ -12,29 +12,47 @@ covid_table = covid_table.drop_duplicates()
 
 #removes rows where the country or date is missing because they are important
 covid_table = covid_table.dropna(subset=['location', 'date'])
+covid_table = covid_table.dropna(subset=['total_cases'])
 
 #some of the daily case and death numbers are missing, so we fill them in using the value from the day before
-covid_table['new_cases'] = covid_table['new_cases'].fillna(method='ffill')
-covid_table['new_deaths'] = covid_table['new_deaths'].fillna(method='ffill')
+covid_table['new_cases'] = covid_table['new_cases'].ffill()
+covid_table['new_deaths'] = covid_table['new_deaths'].ffill()
+covid_table['new_cases_smoothed'] = covid_table['new_cases_smoothed'].ffill()
+covid_table['new_deaths_smoothed'] = covid_table['new_deaths_smoothed'].ffill()
 
-#removes very low or very high numbers that are probably wrong using the 1% and 99% cutoff
-minimum_allowed_cases = covid_table['new_cases'].quantile(0.01)
-maximum_allowed_cases = covid_table['new_cases'].quantile(0.99)
-
-#keeps only the numbers that are between the min and max allowed limits
-covid_table = covid_table[
-    (covid_table['new_cases'] >= minimum_allowed_cases) &
-    (covid_table['new_cases'] <= maximum_allowed_cases)
+#keeps only the important columns that we need for our covid data analysis
+important_columns = [
+    'iso_code', 'continent', 'location', 'date',
+    'total_cases', 'new_cases', 'new_cases_smoothed',
+    'total_deaths', 'new_deaths', 'new_deaths_smoothed',
+    'total_vaccinations', 'people_vaccinated',
+    'people_fully_vaccinated', 'population'
 ]
+covid_data = covid_table[important_columns]
 
-#adds a new column that shows the 7-day average to make trends easier to see
-covid_table['average_7_day_cases'] = covid_table.groupby('location')['new_cases'].transform(
-    lambda numbers: numbers.rolling(7).mean()
-)
+#removes all the early days where each country had 0 covid cases not useful for this analysis
+#this finds the first date when a country had at least 1 case and keeps everything from that day forward
+cleaned_covid_data = []
+
+grouped_data = covid_data.groupby('location')
+for location in grouped_data.groups:
+    country_data = grouped_data.get_group(location)
+    filtered_data = country_data[country_data['total_cases'] != 0]
+    if len(filtered_data) > 0:
+        cleaned_covid_data.append(filtered_data.iloc[0:])
+cleaned_covid_data = pd.concat(cleaned_covid_data)
+
+import os
 
 #saves the cleaned and improved data into a new CSV file that can be used later
-covid_table.to_csv('data/cleaned_covid_data.csv', index=False)
+covid_table.to_csv('cleaned_covid_data.csv', index=False)
 
 #prints a message to show the cleaning is finished and also shows a quick summary of the table
 print("Done cleaning the covid data:")
 print(covid_table.info())
+
+#saves the cleaned covid data to the current working directory
+file_name = "cleaned_covid_data.csv"
+cleaned_covid_data.to_csv(file_name, index=False)
+
+print(f"Your file has been saved as '{file_name}' in the current folder as the python script")
