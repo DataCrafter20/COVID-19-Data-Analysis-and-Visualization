@@ -4,7 +4,7 @@ import seaborn as sns
 import plotly.express as px
 
 #reads the covid data file so that we can use it to make graphs
-covid_data_file = pd.read_csv('data/cleaned_covid_data.csv')
+covid_data_file = pd.read_csv('cleaned_covid_data.csv')
 
 #converts the date column into proper date format so python knows it's a date
 covid_data_file['date'] = pd.to_datetime(covid_data_file['date'])
