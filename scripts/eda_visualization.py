@@ -10,7 +10,8 @@ covid_data_file = pd.read_csv('cleaned_covid_data.csv')
 covid_data_file['date'] = pd.to_datetime(covid_data_file['date'])
 
 #filters the data so we only get info about Brazil and store it in a new variable
-brazil_only_data = covid_data_file[covid_data_file['location'] == 'Brazil']
+brazil_only_data = covid_data_file[covid_data_file['location'] == 'Brazil'].copy()
+brazil_only_data.loc[:, '7_day_avg_cases'] = brazil_only_data['new_cases'].rolling(window=7).mean()
 
 #this makes the background of the graphs have white lines to help us see better
 sns.set_style('whitegrid')
@@ -48,21 +49,14 @@ plt.show()
 #now we want to compare Brazil with South Africa so we filter again
 brazil_and_south_africa = covid_data_file[covid_data_file['location'].isin(['Brazil', 'South Africa'])]
 
-#this makes a cool interactive graph so we can see the comparison between Brazil and South Africa
-comparison_graph = px.line(
-    brazil_and_south_africa, 
+#compares Brazil vs. South Africa with an interactive plot
+comparison_data = covid_data_file[covid_data_file['location'].isin(['Brazil', 'South Africa'])].copy()
+fig = px.line(
+    comparison_data, 
     x='date', 
     y='new_cases', 
     color='location',
     title='Comparison of Daily New COVID-19 Cases: Brazil vs. South Africa',
     labels={'new_cases': 'New Cases', 'date': 'Date'}
 )
-
-#this shows us the interactive graph
-comparison_graph.show()
-
-comparison_data = covid_data[covid_data['location'].isin(['Brazil', 'South Africa'])]  # Filtering data for Brazil and South Africa
-fig = px.line(comparison_data, x='date', y='new_cases', color='location',  # Creating an interactive line plot
-              title='Comparison of Daily New COVID-19 Cases: Brazil vs. South Africa',  # Setting the title of the plot
-              labels={'new_cases': 'New Cases', 'date': 'Date'})  # Customizing labels for the plot
-fig.show()  # Displaying the interactive plot
+fig.show()
